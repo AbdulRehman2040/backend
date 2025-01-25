@@ -31,6 +31,7 @@ mongoose.connect(data, {
   .catch((err) => console.log('MongoDB connection error:', err));
 
 // Add routes for sellers, buyers, notifications, and matching
+
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
 app.use('/api/match', matchRoutes);
