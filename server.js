@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 // MongoDB URI from environment variable or fallback
-const data = 'mongodb+srv://abdulrehmankhawaja20:k2FHsifKHFJLrvWO@cluster0.duv6n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const data =process.env.MONGODB_URI || 'mongodb+srv://abdulrehmankhawaja20:k2FHsifKHFJLrvWO@cluster0.duv6n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 // Enable CORS for all origins (adjust the origin if needed)
 app.use(cors());
