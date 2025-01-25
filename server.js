@@ -17,7 +17,9 @@ const app = express();
 const data =process.env.MONGODB_URI || 'mongodb+srv://abdulrehmankhawaja20:k2FHsifKHFJLrvWO@cluster0.duv6n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
 // Enable CORS for all origins (adjust the origin if needed)
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allow all origins (replace * with your frontend's URL for better security)
+}));
 
 // Middleware to parse incoming JSON requests
 app.use(express.json());
