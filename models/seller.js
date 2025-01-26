@@ -6,7 +6,7 @@ const sellerSchema = new mongoose.Schema({
   landlordEmailAddress: { type: String, required: true },
   landlordPropertyType: { type: String, 
     required: true, 
-    enum:["Cafe",'Unit', "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"] }, // e.g., "Apartment", "House", "Commercial"
+    enum:["Cafe", "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities",'Unit',"Warehouse","Other"] }, // e.g., "Apartment", "House", "Commercial"
   landlordPropertyAddress: { type: String, required: true,
     enum:[
       "Aireborough",

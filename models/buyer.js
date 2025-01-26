@@ -7,7 +7,7 @@ const buyerSchema = new mongoose.Schema({
   propertyTypeSelect: { 
     type: String,
     required: true,
-    enum: ["Cafe",'Unit', "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"],
+    enum: ["Cafe", "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities",'Unit',"Warehouse","Other"],
   },
   areaRequired: { 
     type: String,
