@@ -32,15 +32,39 @@ export const getSellerById = async (req, res) => {
 };
 
 // Update a seller
+// export const updateSeller = async (req, res) => {
+//   try {
+//     const seller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
+//     if (!seller) return res.status(404).json({ message: 'Seller not found' });
+//     res.status(200).json(seller);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
 export const updateSeller = async (req, res) => {
   try {
+    // Check if the request body contains propertyStatus
+    if (!req.body.propertyStatus) {
+      return res.status(400).json({ message: 'Property status is required' });
+    }
+
+    // Update the seller in the database
     const seller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!seller) return res.status(404).json({ message: 'Seller not found' });
-    res.status(200).json(seller);
+
+    // If the seller is not found, return a 404 error
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found' });
+    }
+
+    // Return the updated seller with the correct property status
+    res.status(200).json({ updatedSeller: seller });
   } catch (error) {
+    console.error("Error updating seller:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Delete a seller
 export const deleteSeller = async (req, res) => {

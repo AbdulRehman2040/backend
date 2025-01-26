@@ -6,7 +6,7 @@ const sellerSchema = new mongoose.Schema({
   landlordEmailAddress: { type: String, required: true },
   landlordPropertyType: { type: String, 
     required: true, 
-    enum:["Cafe", "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"] }, // e.g., "Apartment", "House", "Commercial"
+    enum:["Cafe",'Unit', "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"] }, // e.g., "Apartment", "House", "Commercial"
   landlordPropertyAddress: { type: String, required: true,
     enum:[
       "Aireborough",
@@ -69,6 +69,11 @@ const sellerSchema = new mongoose.Schema({
       "£10,000+",
     ]
    }, // Rent amount in numeric form
+   propertyStatus: {
+    type: String,
+    enum: ['active', 'non-active'],
+    default: 'active', // Default status is 'active' when a form is created
+  },
  
   notes: { type: String }, // Optional notes field
   formCreatedDate: { type: Date, default: Date.now },

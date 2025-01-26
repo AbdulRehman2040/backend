@@ -7,7 +7,7 @@ const buyerSchema = new mongoose.Schema({
   propertyTypeSelect: { 
     type: String,
     required: true,
-    enum: ["Cafe", "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"],
+    enum: ["Cafe",'Unit', "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities","Warehouse","Other"],
   },
   areaRequired: { 
     type: String,
@@ -66,6 +66,7 @@ const buyerSchema = new mongoose.Schema({
   },
   notes: { type: String },
   propertyAvailableDate: { type: Date, required: true },
+  propertyStatus: { type: String, default: "active" },
 });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);
