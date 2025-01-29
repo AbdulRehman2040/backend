@@ -4,6 +4,7 @@ const sellerSchema = new mongoose.Schema({
   landlordName: { type: String, required: true },
   landlordPhoneNumber: { type: String, required: true },
   landlordEmailAddress: { type: String, required: true },
+  propertyCategory:{type:String, required:true, enum:['Commercial','Industrial','Land']},
   landlordPropertyType: { type: String, 
     required: true, 
     enum:["Cafe", "Car Wash", "Factory","Healthcare","Hotel","Medical Center","Nursing Homes","Office","Pub","Restaurant","Retail","Shops","Shopping Center","Sports Facilities",'Unit',"Warehouse","Other"] }, // e.g., "Apartment", "House", "Commercial"
@@ -69,14 +70,11 @@ const sellerSchema = new mongoose.Schema({
       "£10,000+",
     ]
    }, // Rent amount in numeric form
-   propertyStatus: {
-    type: String,
-    enum: ['active', 'non-active'],
-    default: 'active', // Default status is 'active' when a form is created
-  },
+   propertyStatus:{ type: String, default: "active" },
  
   notes: { type: String }, // Optional notes field
   formCreatedDate: { type: Date, default: Date.now },
+  subscribe: { type: Boolean, default: true },
 });
 
 const Seller = mongoose.model('Seller', sellerSchema);

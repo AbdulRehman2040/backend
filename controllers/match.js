@@ -16,6 +16,7 @@ router.get('/matches', async (req, res) => {
       // Find buyers matching the seller's property
       const potentialBuyers = await Buyer.find({
         areaRequired: seller.landlordPropertyAddress,
+        
         budget: { $gte: seller.landlordRent },
       });
 
