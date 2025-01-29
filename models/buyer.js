@@ -4,6 +4,7 @@ const buyerSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   emailAddress: { type: String, required: true },
+  propertyCategory:{type:String, required:true, enum:['Commercial','Industrial','Land']},
   propertyTypeSelect: { 
     type: String,
     required: true,
@@ -61,13 +62,14 @@ const buyerSchema = new mongoose.Schema({
   FirstLineofAddress: { type: String, required: true },
   postcode: { type: String, required: true },
   budget: { 
-    type: String,
+    type: Number,
     required: true,
   },
   notes: { type: String },
   propertyAvailableDate: { type: Date, required: true },
   propertyStatus: { type: String, default: "active" },
   formCreatedDate: { type: Date, default: Date.now },
+  subscribe: { type: Boolean, default: true },
 });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);
