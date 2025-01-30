@@ -65,6 +65,10 @@ const buyerSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  deposit: { 
+    type: Number,
+    required: true,
+  },
   notes: { type: String },
   propertyAvailableDate: { type: Date, required: true },
   propertyStatus: { type: String, default: "active" },
