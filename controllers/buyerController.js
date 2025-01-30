@@ -49,7 +49,9 @@ export const updateBuyer = async (req, res) => {
     // Ensure only the `propertyStatus` field is updated
     const buyer = await Buyer.findByIdAndUpdate(
       req.params.id,
-      { propertyStatus: req.body.propertyStatus }, // Update only this field
+      { propertyStatus: req.body.propertyStatus,
+        subscriptionStatus: req.body.subscriptionStatus
+       }, // Update only this field
       { new: true } // Return the updated document
     );
 

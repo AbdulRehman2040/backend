@@ -73,7 +73,7 @@ const buyerSchema = new mongoose.Schema({
   propertyAvailableDate: { type: Date, required: true },
   propertyStatus: { type: String, default: "active" },
   formCreatedDate: { type: Date, default: Date.now },
-  subscribe: { type: Boolean, default: true },
+  subscriptionStatus: { type: String, default: 'Subscribed' },
 });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);
