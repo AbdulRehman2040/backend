@@ -44,21 +44,26 @@ export const getSellerById = async (req, res) => {
 
 export const updateSeller = async (req, res) => {
   try {
-    // Check if the request body contains propertyStatus
-    if (!req.body.propertyStatus) {
-      return res.status(400).json({ message: 'Property status is required' });
+    // Ensure at least one required field is provided
+    if (!req.body.propertyStatus && !req.body.subscriptionStatus) {
+      return res.status(400).json({ message: "Property status or Subscription status is required" });
     }
 
-    // Update the seller in the database
-    const seller = await Seller.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    // Update only the specified fields
+    const updateFields = {};
+    if (req.body.propertyStatus) updateFields.propertyStatus = req.body.propertyStatus;
+    if (req.body.subscriptionStatus) updateFields.subscriptionStatus = req.body.subscriptionStatus;
 
-    // If the seller is not found, return a 404 error
+    const seller = await Seller.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+
     if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
+      return res.status(404).json({ message: "Seller not found" });
     }
 
-    // Return the updated seller with the correct property status
-    res.status(200).json({ updatedSeller: seller });
+    res.status(200).json({
+      message: "Seller updated successfully",
+      updatedSeller: seller,
+    });
   } catch (error) {
     console.error("Error updating seller:", error);
     res.status(500).json({ message: error.message });
