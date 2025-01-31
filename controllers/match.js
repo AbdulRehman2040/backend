@@ -5,67 +5,73 @@ import Buyer from '../models/buyer.js';
 
 const router = express.Router();
 
-// Find potential matches between sellers and buyers
+// Create the transporter *once* outside the route handler
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'powerpeak3@gmail.com', // Your Gmail address
+    pass: 'fixw agfv kkwq zqqq', // Your App Password
+  },
+});
+
 router.get('/matches', async (req, res) => {
   try {
-    const sellers = await Seller.find();
+    // Fetch all active sellers and buyers
+    const sellers = await Seller.find({ propertyStatus: 'active' });
+    const buyers = await Buyer.find({ propertyStatus: 'active' });
+
     const matches = [];
 
     // Loop through each seller
     for (const seller of sellers) {
-      // Find buyers matching the seller's property
-      const potentialBuyers = await Buyer.find({
-        areaRequired: seller.landlordPropertyAddress,
-        
-        budget: { $gte: seller.landlordRent },
+      // Find buyers with matching criteria
+      const potentialBuyers = buyers.filter((buyer) => {
+        return (
+          buyer.propertyCategory === seller.propertyCategory &&
+          buyer.propertyTypeSelect === seller.landlordPropertyType &&
+          buyer.areaRequired === seller.landlordPropertyAddress
+        );
       });
 
-      // If there are matches, process them
+      // If matching buyers are found, add them to the matches array
       for (const buyer of potentialBuyers) {
         matches.push({ seller, buyer });
 
-        // Create email transporter
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'powerpeak3@gmail.com', // Your Gmail address
-            pass: 'fixw agfv kkwq zqqq', // Your App Password
-          },
-          
-        });
-
-        // Email details for the buyer
+        // Send email to the seller
         const mailOptions = {
-          from: 'powerpeak3@gmail.com', // Sender address
-          to: buyer.emailAddress,      // Recipient email
-          subject: 'Potential Property Match Found!',
+          from: 'powerpeak3@gmail.com',
+          to: seller.landlordEmailAddress, // Send email to the seller
+          subject: 'Potential Buyer Match Found!',
           text: `
-            A property matching your criteria has been found!
-            Seller Details:
-            Name: ${seller.landlordName}
-            Phone: ${seller.landlordPhoneNumber}
-            Email: ${seller.landlordEmailAddress}
-            Property Type: ${seller.landlordPropertyType}
-            Address: ${seller.landlordPropertyAddress}
-            Rent: $${seller.landlordRent}
+Hello ${seller.landlordName},
 
-            Contact the seller for more details!
+We have found a potential buyer for your property.
+
+Please get in touch with the buyer or contact our office for further assistance.
+
+Thank you!
+
+Best Regards,
+LBRE Office
+Phone: 0800 788 0542
+Website: www.lbre.co.uk
+Email: info@lbre.co.uk
           `,
         };
 
-        // Send email to the buyer
+        // Send the email
         await transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
-            console.error(`Error sending email to ${buyer.emailAddress}:`, error);
+            console.error(`Error sending email to ${seller.landlordEmailAddress}:`, error);
           } else {
-            console.log(`Email sent successfully to ${buyer.emailAddress}:`, info.response);
+            console.log(`Email sent successfully to ${seller.landlordEmailAddress}:`, info.response);
           }
         });
       }
     }
 
-    // Respond with the list of matches and a success message
-    res.status(200).json({ matches, message: 'Emails sent to all matched buyers successfully.' });
+    // Return the matches and a success message
+    res.status(200).json({ matches, message: 'Emails sent to all matched sellers successfully.' });
   } catch (error) {
     console.error('Error in matching logic:', error);
     res.status(500).json({ message: error.message });
