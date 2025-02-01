@@ -9,6 +9,8 @@ import matchingRoutes from './routes/matchingRoutes.js';
 import Matchrouter from './controllers/match.js'
 import matchRoutes from './routes/matchiRoutes.js';
 
+
+
 // Load environment variables
 dotenv.config();
 
@@ -40,6 +42,38 @@ app.get("/", (req, res) => {
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
 app.use('/api/match', matchRoutes);
+// Hardcoded admin credentials (plain text)
+const admin = {
+  username: 'admin',
+  password: 'admin123'
+};
+
+// POST /api/admin/login
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Validate input
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Please provide both username and password.' });
+  }
+
+  // Check credentials (plain text comparison)
+  if (username !== admin.username || password !== admin.password) {
+    return res.status(401).json({ error: 'Invalid credentials.' });
+  }
+
+  // Credentials are valid; generate a JWT token
+  const token = jwt.sign(
+    { username: admin.username, role: 'admin' },
+    process.env.JWT_SECRET || 'your_jwt_secret',
+    { expiresIn: '1h' }
+  );
+
+  res.json({ token });
+});
+
+
+
 
 
 

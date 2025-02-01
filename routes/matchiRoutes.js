@@ -3,7 +3,11 @@ import matchController from '../controllers/match.js'; // Adjust the path based 
 
 const router = express.Router();
 
-// Route to find matches between sellers and buyers and send emails
+// Endpoint to fetch matches (GET)
 router.get('/matches', matchController);
+
+// Endpoint to send match emails (POST)
+router.post('/send-emails', matchController);
+router.get('/emails-sent',matchController )
 
 export default router;

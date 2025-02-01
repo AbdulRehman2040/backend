@@ -75,6 +75,7 @@ const sellerSchema = new mongoose.Schema({
   notes: { type: String }, // Optional notes field
   formCreatedDate: { type: Date, default: Date.now },
   subscriptionStatus: { type: String, default: 'Subscribed' },
+  emailsSent: { type: Number, default: 0 },
 });
 
 const Seller = mongoose.model('Seller', sellerSchema);
