@@ -8,6 +8,8 @@ router.get('/matches', matchController);
 
 // Endpoint to send match emails (POST)
 router.post('/send-emails', matchController);
+
+
 router.get('/emails-sent',matchController )
 
 export default router;
