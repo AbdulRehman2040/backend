@@ -169,9 +169,11 @@ app.post("/api/reset-password/:token", async (req, res) => {
   console.log("Reset password request for token:", token); // Debugging
 
   try {
+    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("Decoded token:", decoded); // Debugging
 
+    // Find the admin with the matching token and check expiration
     const admin = await Admin.findOne({
       _id: decoded.id,
       resetPasswordToken: token,
@@ -183,7 +185,11 @@ app.post("/api/reset-password/:token", async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
+    // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("New hashed password:", hashedPassword); // Debugging
+
+    // Update the admin's password and clear the reset token
     admin.password = hashedPassword;
     admin.resetPasswordToken = undefined;
     admin.resetPasswordExpires = undefined;
