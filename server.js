@@ -144,7 +144,7 @@ app.post("/api/forgot-password", async (req, res) => {
     admin.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await admin.save();
 
-    const resetUrl = `http://localhost:3000/reset-password/${token}`;
+    const resetUrl = `https://ibre.vercel.app/reset-password/${token}`;
     console.log("Reset URL:", resetUrl); // Debugging
 
     const mailOptions = {
