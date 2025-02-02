@@ -3,6 +3,7 @@ const adminSchema = new mongoose.Schema({
     password: { type: String, required: true },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
+    
   });
   
   const Admin = mongoose.model("Admin", adminSchema);

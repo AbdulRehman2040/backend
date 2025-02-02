@@ -12,6 +12,7 @@ import bodyParser from "body-parser";
 import nodemailer from 'nodemailer';
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken';
+import contactRoutes from './routes/contactRoutes.js';
 
 
 
@@ -47,6 +48,9 @@ app.get("/", (req, res) => {
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
 app.use('/api/match', matchRoutes);
+app.use('/api/', contactRoutes);
+
+
 // Hardcoded admin credentials (plain text)
 // Admin Schema
 const adminSchema = new mongoose.Schema({
@@ -54,9 +58,29 @@ const adminSchema = new mongoose.Schema({
   password: { type: String, required: true },
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  timer: { type: Number, default: 0 }, // Add timer field
+  initialTime: { type: Number, default: 0 }, // Add initial time field
+  isLoopActive: { type: Boolean, default: true },
 });
 
 const Admin = mongoose.model("Admin", adminSchema);
+
+const authenticateAdmin = async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1]; // Extract token from headers
+  if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.adminId = decoded.id; // Attach admin ID to request object
+      next();
+  } catch (error) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+
 
 // Nodemailer Setup (for sending emails)
 const transporter = nodemailer.createTransport({
@@ -125,6 +149,73 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Change Password Route
+app.post("/api/change-password", authenticateAdmin, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+      const admin = await Admin.findById(req.adminId);
+      if (!admin) {
+          return res.status(400).json({ message: "Admin not found" });
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, admin.password);
+      if (!isMatch) {
+          return res.status(400).json({ message: "Old password is incorrect" });
+      }
+
+      // Hash the new password
+      const saltRounds = 10;
+      admin.password = await bcrypt.hash(newPassword, saltRounds);
+
+      await admin.save();
+      res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+      console.error("Change Password Error:", error);
+      res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Add New Admin Route
+app.post("/api/add-admin", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({ message: "Admin already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newAdmin = new Admin({
+      email,
+      password: hashedPassword,
+    });
+
+    await newAdmin.save();
+    res.status(201).json({ message: "Admin added successfully" });
+  } catch (error) {
+    console.error("Add admin error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Admin Profile Route
+app.get("/api/admin-profile", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const admin = await Admin.findOne({ email });
+    if (!admin) {
+      return res.status(400).json({ message: "Admin not found" });
+    }
+
+    res.json({ email: admin.email });
+  } catch (error) {
+    console.error("Admin profile error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // Forgot Password Route
 app.post("/api/forgot-password", async (req, res) => {
   const { email } = req.body;
@@ -202,6 +293,66 @@ app.post("/api/reset-password/:token", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+// get all admin
+app.get("/api/admins", async (req, res) => { // Removed authenticateAdmin
+  try {
+    const admins = await Admin.find();
+    res.json(admins);
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete Admin
+app.delete("/admins/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("Deleting admin with ID:", id); // Debugging log
+
+    const deletedAdmin = await Admin.findByIdAndDelete(id);
+
+    if (!deletedAdmin) {
+      console.log("Admin not found"); // Log if not found
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    console.log("Admin deleted successfully"); // Log success
+    res.status(200).json({ message: "Admin deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting admin:", error); // Log full error
+    res.status(500).json({ message: "Error deleting admin", error: error.message });
+  }
+});
+
+
+app.get("/api/admin/timer", async (req, res) => {
+  try {
+    const admin = await Admin.findOne();
+    if (!admin) return res.status(404).json({ error: "Admin not found" });
+
+    res.json({
+      timer: admin.timer,
+      initialTime: admin.initialTime,
+      isLoopActive: admin.isLoopActive,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Update Timer
+app.put("/api/admin/timer", async (req, res) => {
+  const { timer, initialTime, isLoopActive } = req.body;
+  try {
+    await Admin.findOneAndUpdate({}, { timer, initialTime, isLoopActive }, { new: true, upsert: true });
+    res.json({ message: "Timer updated successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error updating timer" });
+  }
+});
+
+
 
 
 

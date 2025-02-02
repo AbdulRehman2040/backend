@@ -1,35 +1,47 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
- router.post('/', async (req, res) => {
-  const { name, email, message } = req.body;
+// Load environment variables from .env
+dotenv.config();
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'All fields are required.' });
-  }
-
-  try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'powerpeak3@gmail.com', // Your Gmail address
-            pass: 'fixw agfv kkwq zqqq', // Your App Password
-      },
-    });
-
-    const mailOptions = {
-      from: email,
-      to: 'your-email@gmail.com', // Replace with recipient email
-      subject: 'New Contact Form Submission',
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: 'Your message has been sent successfully.' });
-  } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send your message. Please try again later.' });
-  }
+// Nodemailer Transport Setup (Gmail example, replace with your SMTP credentials)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // From .env file
+    pass: process.env.EMAIL_PASS, // From .env file
+  },
 });
 
+// Controller for handling contact form submission
+export const sendContactForm = async (req, res) => {
+  const { name, email, phone, message } = req.body;
 
-export default router;
+  // Validate the fields (simple check)
+  if (!name || !email || !phone || !message) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER, // Sender address (your email)
+    to: process.env.EMAIL_USER,   // Receiver address (your email)
+    subject: 'New Contact Form Submission',
+    text: `
+      You have a new contact form submission:
+      
+      Name: ${name}
+      Email: ${email}
+      Phone: ${phone}
+      Message: ${message}
+    `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+    return res.status(200).json({ message: 'Thank you for reaching out to us!' });
+  } catch (err) {
+    console.error('Error sending email:', err);
+    return res.status(500).json({ message: 'Failed to send message. Please try again.' });
+  }
+};
