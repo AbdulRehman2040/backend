@@ -10,7 +10,7 @@ import Matchrouter from './controllers/match.js'
 import matchRoutes from './routes/matchiRoutes.js';
 import bodyParser from "body-parser";
 import nodemailer from 'nodemailer';
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken';
 
 
