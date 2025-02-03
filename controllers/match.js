@@ -60,11 +60,11 @@ router.post('/send-emails', async (req, res) => {
       const mailOptions = {
         from: 'powerpeak3@gmail.com',
         to: seller.landlordEmailAddress, // Email sent to the seller
-        subject: 'Potential Buyer Match Found!',
+        subject: 'Potential Property Match Found!',
         text: `
 Hello ${seller.landlordName},
 
-We have found a potential buyer for your property.
+We have found a potential property for you..
 
 Please get in touch with the buyer or contact our office for further assistance.
 
@@ -91,7 +91,7 @@ Email: info@lbre.co.uk
     }
 
     // Return matches and the number of emails sent
-    res.status(200).json({ matches, emailsSent: emailCount, message: 'Emails sent to all matched sellers successfully.' });
+    res.status(200).json({ matches, emailsSent: emailCount, message: 'Emails sent to all matched Tenants successfully.' });
   } catch (error) {
     console.error('Error sending emails:', error);
     res.status(500).json({ message: error.message });
