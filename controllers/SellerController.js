@@ -42,17 +42,48 @@ export const getSellerById = async (req, res) => {
 //   }
 // };
 
+// export const updateSeller = async (req, res) => {
+//   try {
+//     // Ensure at least one required field is provided
+//     if (!req.body.propertyStatus && !req.body.subscriptionStatus) {
+//       return res.status(400).json({ message: "Property status or Subscription status is required" });
+//     }
+
+//     // Update only the specified fields
+//     const updateFields = {};
+//     if (req.body.propertyStatus) updateFields.propertyStatus = req.body.propertyStatus;
+//     if (req.body.subscriptionStatus) updateFields.subscriptionStatus = req.body.subscriptionStatus;
+//     if (req.body.adminNotes) updateFields.adminNotes = req.body.adminNotes;
+
+//     const seller = await Seller.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+
+//     if (!seller) {
+//       return res.status(404).json({ message: "Seller not found" });
+//     }
+
+//     res.status(200).json({
+//       message: "Seller updated successfully",
+//       updatedSeller: seller,
+//     });
+//   } catch (error) {
+//     console.error("Error updating seller:", error);
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 export const updateSeller = async (req, res) => {
   try {
-    // Ensure at least one required field is provided
-    if (!req.body.propertyStatus && !req.body.subscriptionStatus) {
-      return res.status(400).json({ message: "Property status or Subscription status is required" });
+    const { propertyStatus, subscriptionStatus, adminNotes } = req.body;
+
+    // Ensure at least one field is provided
+    if (!propertyStatus && !subscriptionStatus && !adminNotes) {
+      return res.status(400).json({ message: "At least one field is required for update" });
     }
 
     // Update only the specified fields
     const updateFields = {};
-    if (req.body.propertyStatus) updateFields.propertyStatus = req.body.propertyStatus;
-    if (req.body.subscriptionStatus) updateFields.subscriptionStatus = req.body.subscriptionStatus;
+    if (propertyStatus) updateFields.propertyStatus = propertyStatus;
+    if (subscriptionStatus) updateFields.subscriptionStatus = subscriptionStatus;
+    if (adminNotes) updateFields.adminNotes = adminNotes;
 
     const seller = await Seller.findByIdAndUpdate(req.params.id, updateFields, { new: true });
 

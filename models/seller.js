@@ -73,6 +73,7 @@ const sellerSchema = new mongoose.Schema({
    propertyStatus:{ type: String, default: "active" },
  
   notes: { type: String }, // Optional notes field
+  adminNotes: { type: String, default: '' },// New field for admin notes
   formCreatedDate: { type: Date, default: Date.now },
   subscriptionStatus: { type: String, default: 'Subscribed' },
   emailsSent: { type: Number, default: 0 },

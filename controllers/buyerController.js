@@ -50,7 +50,8 @@ export const updateBuyer = async (req, res) => {
     const buyer = await Buyer.findByIdAndUpdate(
       req.params.id,
       { propertyStatus: req.body.propertyStatus,
-        subscriptionStatus: req.body.subscriptionStatus
+        subscriptionStatus: req.body.subscriptionStatus,
+         adminNotes : req.body.adminNotes
        }, // Update only this field
       { new: true } // Return the updated document
     );

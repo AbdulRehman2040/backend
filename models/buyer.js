@@ -70,10 +70,12 @@ const buyerSchema = new mongoose.Schema({
     required: true,
   },
   notes: { type: String },
+  adminNotes: { type: String, default: '' },
   propertyAvailableDate: { type: Date, required: true },
   propertyStatus: { type: String, default: "active" },
   formCreatedDate: { type: Date, default: Date.now },
   subscriptionStatus: { type: String, default: 'Subscribed' },
+  
 });
 
 const Buyer = mongoose.model('Buyer', buyerSchema);
