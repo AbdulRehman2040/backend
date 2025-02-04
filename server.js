@@ -54,6 +54,7 @@ app.use('/api/', contactRoutes);
 // Hardcoded admin credentials (plain text)
 // Admin Schema
 const adminSchema = new mongoose.Schema({
+  username:{type:String,required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   resetPasswordToken: String,
@@ -178,7 +179,7 @@ app.post("/api/change-password", authenticateAdmin, async (req, res) => {
 
 // Add New Admin Route
 app.post("/api/add-admin", async (req, res) => {
-  const { email, password } = req.body;
+  const {username, email, password } = req.body;
 
   try {
     const existingAdmin = await Admin.findOne({ email });
@@ -188,8 +189,10 @@ app.post("/api/add-admin", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAdmin = new Admin({
+      username,
       email,
       password: hashedPassword,
+      
     });
 
     await newAdmin.save();
