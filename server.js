@@ -7,7 +7,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import dotenv from 'dotenv';  // Added dotenv for environment variables
 import matchingRoutes from './routes/matchingRoutes.js';
 import Matchrouter from './controllers/match.js'
-import matchRoutes from './routes/matchiRoutes.js';
+
 import bodyParser from "body-parser";
 import nodemailer from 'nodemailer';
 import bcrypt from "bcryptjs"
@@ -46,7 +46,7 @@ app.get("/", (req, res) => {
 });
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
-app.use('/api/match', matchRoutes);
+
 app.use('/api/', contactRoutes);
 
 
