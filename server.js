@@ -300,22 +300,22 @@ app.post("/api/reset-password/:token", async (req, res) => {
   }
 });
 // get all admin
-// app.get("/api/admins", authenticateAdmin, async (req, res) => {
-//   try {
-//     // The admin is already attached to the request by authenticateAdmin middleware
-//     const admin = await Admin.findById(req.admin.id);
-//     if (!admin) {
-//       return res.status(404).json({ message: "Admin not found" });
-//     }
-//     res.json({
-//       username: admin.username,
-//       email: admin.email,
-//       id: admin._id
-//     });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
+app.get("/api/admins", authenticateAdmin, async (req, res) => {
+  try {
+    // The admin is already attached to the request by authenticateAdmin middleware
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    res.json({
+      username: admin.username,
+      email: admin.email,
+      id: admin._id
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 app.get("/api/admins/me", authenticateAdmin, async (req, res) => {
   try {
     // The admin is already attached to the request by authenticateAdmin middleware
