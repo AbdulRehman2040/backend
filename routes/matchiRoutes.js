@@ -3,9 +3,13 @@ import matchController from '../controllers/match.js'; // Adjust the path based 
 
 const router = express.Router();
 
+
+
+
 // Endpoint to fetch matches (GET)
 router.get('/matches', matchController);
-router.get('/unmatched-properties',matchController)
+
+router.get('/unmatched-properties',matchController);
 
 // Endpoint to send match emails (POST)
 router.post('/send-emails', matchController);
