@@ -128,24 +128,29 @@ app.post("/api/create-admin", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   console.log("Login request:", email, password); // Debugging
-  localStorage.setItem('token', response.data.token);
+
   try {
+    // Find the admin by email
     const admin = await Admin.findOne({ email });
     if (!admin) {
       console.log("Admin not found"); // Debugging
       return res.status(400).json({ message: "Admin not found" });
     }
 
+    // Compare the provided password with the hashed password
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       console.log("Invalid credentials"); // Debugging
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Generate a JWT token
     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
     console.log("Login successful, token generated:", token); // Debugging
+
+    // Send the token back to the client
     res.json({ token });
   } catch (error) {
     console.error("Login error:", error); // Debugging
