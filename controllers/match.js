@@ -2,8 +2,14 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import Seller from '../models/seller.js'; // Import the Seller model
 import Buyer from '../models/buyer.js';
+import twilio from 'twilio';
+
+// Twilio Configuration
+
 
 const router = express.Router();
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Create the transporter once
 const transporter = nodemailer.createTransport({
@@ -13,6 +19,10 @@ const transporter = nodemailer.createTransport({
     pass: 'fixw agfv kkwq zqqq',    // Your App Password
   },
 });
+
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
 
 // Helper function to find matches (based on active status and matching criteria)
 const findMatches = async () => {
@@ -36,6 +46,31 @@ const findMatches = async () => {
   }
   return matches;
 };
+const findUnmatchedProperties = async () => {
+  const sellers = await Seller.find({ propertyStatus: 'active' });
+  const buyers = await Buyer.find({ propertyStatus: 'active' });
+
+  const matchedSellers = new Set();
+  const matchedBuyers = new Set();
+
+  for (const seller of sellers) {
+    for (const buyer of buyers) {
+      if (
+        buyer.propertyCategory === seller.propertyCategory &&
+        buyer.propertyTypeSelect === seller.landlordPropertyType &&
+        buyer.areaRequired === seller.landlordPropertyAddress
+      ) {
+        matchedSellers.add(seller._id.toString());
+        matchedBuyers.add(buyer._id.toString());
+      }
+    }
+  }
+
+  const unmatchedSellers = sellers.filter(seller => !matchedSellers.has(seller._id.toString()));
+  const unmatchedBuyers = buyers.filter(buyer => !matchedBuyers.has(buyer._id.toString()));
+
+  return { unmatchedSellers, unmatchedBuyers };
+};
 
 // GET endpoint to fetch matches
 router.get('/matches', async (req, res) => {
@@ -47,6 +82,16 @@ router.get('/matches', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+router.get('/unmatched-properties', async (req, res) => {
+  try {
+    const { unmatchedSellers, unmatchedBuyers } = await findUnmatchedProperties();
+    res.status(200).json({ unmatchedSellers, unmatchedBuyers });
+  } catch (error) {
+    console.error('Error fetching unmatched properties:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 
 // POST endpoint to send emails for matches
 router.post('/send-emails', async (req, res) => {
@@ -94,6 +139,41 @@ Email: info@lbre.co.uk
     res.status(200).json({ matches, emailsSent: emailCount, message: 'Emails sent to all matched Tenants successfully.' });
   } catch (error) {
     console.error('Error sending emails:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// **2. New SMS Sending Endpoint**
+router.post('/send-sms', async (req, res) => {
+  try {
+    const matches = await findMatches();
+    let smsCount = 0;
+
+    for (const match of matches) {
+      const { seller } = match;
+
+      if (!seller.landlordPhoneNumber) {
+        console.warn(`Skipping seller ${seller.landlordName}, no phone number provided.`);
+        continue;
+      }
+
+      try {
+        const smsMessage = await client.messages.create({
+          body: `Hello ${seller.landlordName}, we found a buyer for your property. Call us at 0800 788 0542.`,
+          from: twilioPhoneNumber,
+          to: '+923072604625',
+        });
+
+        console.log(`SMS sent to ${seller.landlordPhoneNumber}: ${smsMessage.sid}`);
+        smsCount++;
+      } catch (error) {
+        console.error(`Error sending SMS to ${seller.landlordPhoneNumber}:`, error);
+      }
+    }
+
+    res.status(200).json({ smsSent: smsCount, message: 'SMS sent successfully.' });
+  } catch (error) {
+    console.error('Error sending SMS:', error);
     res.status(500).json({ message: error.message });
   }
 });

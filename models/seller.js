@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const sellerSchema = new mongoose.Schema({
+  formCreatedDate: { type: Date, default: Date.now },
   landlordName: { type: String, required: true },
   landlordPhoneNumber: { type: String, required: true },
   landlordEmailAddress: { type: String, required: true },
@@ -73,8 +74,8 @@ const sellerSchema = new mongoose.Schema({
    propertyStatus:{ type: String, default: "active" },
  
   notes: { type: String }, // Optional notes field
-  adminNotes: { type: String, default: '' },// New field for admin notes
-  formCreatedDate: { type: Date, default: Date.now },
+  adminNotes: String,// New field for admin notes
+  
   subscriptionStatus: { type: String, default: 'Subscribed' },
   emailsSent: { type: Number, default: 0 },
 });

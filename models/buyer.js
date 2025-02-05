@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const buyerSchema = new mongoose.Schema({
+  formCreatedDate: { type: Date, default: Date.now },
   name: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   emailAddress: { type: String, required: true },
@@ -70,10 +71,11 @@ const buyerSchema = new mongoose.Schema({
     required: true,
   },
   notes: { type: String },
-  adminNotes: { type: String, default: '' },
+  adminNotes: String,
+  
   propertyAvailableDate: { type: Date, required: true },
   propertyStatus: { type: String, default: "active" },
-  formCreatedDate: { type: Date, default: Date.now },
+  
   subscriptionStatus: { type: String, default: 'Subscribed' },
   
 });

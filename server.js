@@ -13,7 +13,7 @@ import nodemailer from 'nodemailer';
 import bcrypt from "bcryptjs"
 import jwt from 'jsonwebtoken';
 import contactRoutes from './routes/contactRoutes.js';
-
+import Admin from './models/admin.js'
 
 
 // Load environment variables
@@ -53,31 +53,34 @@ app.use('/api/', contactRoutes);
 
 // Hardcoded admin credentials (plain text)
 // Admin Schema
-const adminSchema = new mongoose.Schema({
-  username:{type:String,required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  resetPasswordToken: String,
-  resetPasswordExpires: Date,
-  timer: { type: Number, default: 0 }, // Add timer field
-  initialTime: { type: Number, default: 0 }, // Add initial time field
-  isLoopActive: { type: Boolean, default: true },
-});
 
-const Admin = mongoose.model("Admin", adminSchema);
 
-const authenticateAdmin = async (req, res, next) => {
+
+export const authenticateAdmin = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1]; // Extract token from headers
   if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
   }
 
   try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.adminId = decoded.id; // Attach admin ID to request object
-      next();
+    // Verify the token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Fetch the admin from the database
+    const admin = await Admin.findById(decoded.id);
+    if (!admin) {
+      return res.status(401).json({ message: "Admin not found" });
+    }
+
+    // Attach the admin's details to the request object
+    req.admin = {
+      id: admin._id,
+      username: admin.username, // Assuming the admin schema has a `username` field
+    };
+
+    next(); // Proceed to the next middleware or route handler
   } catch (error) {
-      return res.status(401).json({ message: "Invalid or expired token" });
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
@@ -125,7 +128,7 @@ app.post("/api/create-admin", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   console.log("Login request:", email, password); // Debugging
-
+  localStorage.setItem('token', response.data.token);
   try {
     const admin = await Admin.findOne({ email });
     if (!admin) {
@@ -297,12 +300,35 @@ app.post("/api/reset-password/:token", async (req, res) => {
   }
 });
 // get all admin
-app.get("/api/admins", async (req, res) => { // Removed authenticateAdmin
+app.get("/api/admins", authenticateAdmin, async (req, res) => {
   try {
-    const admins = await Admin.find();
-    res.json(admins);
+    // The admin is already attached to the request by authenticateAdmin middleware
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    res.json({
+      username: admin.username,
+      email: admin.email,
+      id: admin._id
+    });
   } catch (error) {
-    console.error("Error fetching admins:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+app.get("/api/admins/me", authenticateAdmin, async (req, res) => {
+  try {
+    // The admin is already attached to the request by authenticateAdmin middleware
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    res.json({
+      username: admin.username,
+      email: admin.email,
+      id: admin._id,
+    });
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });

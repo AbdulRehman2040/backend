@@ -43,29 +43,32 @@ export const getBuyerById = async (req, res) => {
 // };
 export const updateBuyer = async (req, res) => {
   try {
-    // Log the incoming request body to debug
     console.log("Request body:", req.body);
+    console.log("Request params:", req.params);
 
-    // Ensure only the `propertyStatus` field is updated
     const buyer = await Buyer.findByIdAndUpdate(
       req.params.id,
-      { propertyStatus: req.body.propertyStatus,
+      {
+        propertyStatus: req.body.propertyStatus,
         subscriptionStatus: req.body.subscriptionStatus,
-         adminNotes : req.body.adminNotes
-       }, // Update only this field
-      { new: true } // Return the updated document
+        adminNotes: req.body.adminNotes,
+      },
+      { new: true }
     );
 
     if (!buyer) {
+      console.log("Buyer not found for ID:", req.params.id);
       return res.status(404).json({ message: "Buyer not found" });
     }
 
+    console.log("Updated buyer:", buyer);
     res.status(200).json({
       message: "Buyer updated successfully",
-      updatedBuyer: buyer, // Return the updated document
+      updatedBuyer: buyer,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error updating buyer:", error);
+    res.status(500).json({ message: error.message, stack: error.stack }); // Include stack trace
   }
 };
 
