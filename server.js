@@ -31,8 +31,7 @@ app.use(cors({
 
 
 // Middleware to parse incoming JSON requests
-app.use(express.json());
-app.use(bodyParser.json());
+
 // MongoDB connection
 mongoose.connect(data, {
   useNewUrlParser: true,
