@@ -7,7 +7,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import dotenv from 'dotenv';  // Added dotenv for environment variables
 import matchingRoutes from './routes/matchingRoutes.js';
 import Matchrouter from './controllers/match.js'
-
+import matchRoutes from './routes/matchiRoutes.js';
 import bodyParser from "body-parser";
 import nodemailer from 'nodemailer';
 import bcrypt from "bcryptjs"
@@ -31,6 +31,7 @@ app.use(cors({
 
 
 // Middleware to parse incoming JSON requests
+app.use(express.json());
 
 // MongoDB connection
 mongoose.connect(data, {
@@ -46,7 +47,7 @@ app.get("/", (req, res) => {
 });
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
-
+app.use('/api/match', matchRoutes);
 app.use('/api/', contactRoutes);
 
 
@@ -394,3 +395,6 @@ const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+export default app;  // ES Modules syntax
