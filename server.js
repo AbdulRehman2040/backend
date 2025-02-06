@@ -48,7 +48,7 @@ app.get("/", (req, res) => {
 app.use('/api/sellers', sellerRoutes); // All seller-related APIs will have the `/api/sellers` prefix
 app.use('/api/buyers', buyerRoutes);   // All buyer-related APIs will have the `/api/buyers` prefix
 app.use('/api/match', matchRoutes);
-app.use('/api/', contactRoutes);
+app.use('/api/', contactRoutes);   
 
 
 // Hardcoded admin credentials (plain text)
@@ -157,31 +157,34 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+// Change Password Route
 // Change Password Route
 app.post("/api/change-password", authenticateAdmin, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   try {
-      const admin = await Admin.findById(req.adminId);
-      if (!admin) {
-          return res.status(400).json({ message: "Admin not found" });
-      }
+    // Fetch the admin using the ID from the authenticated request
+    const admin = await Admin.findById(req.admin.id);
+    if (!admin) {
+      return res.status(400).json({ message: "Admin not found" });
+    }
 
-      const isMatch = await bcrypt.compare(oldPassword, admin.password);
-      if (!isMatch) {
-          return res.status(400).json({ message: "Old password is incorrect" });
-      }
+    // Compare the old password with the stored hashed password
+    const isMatch = await bcrypt.compare(oldPassword, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
 
-      // Hash the new password
-      const saltRounds = 10;
-      admin.password = await bcrypt.hash(newPassword, saltRounds);
+    // Hash the new password
+    const saltRounds = 10;
+    admin.password = await bcrypt.hash(newPassword, saltRounds);
 
-      await admin.save();
-      res.status(200).json({ message: "Password changed successfully" });
+    // Save the updated admin document
+    await admin.save();
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
-      console.error("Change Password Error:", error);
-      res.status(500).json({ message: "Server error" });
+    console.error("Change Password Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
@@ -305,22 +308,17 @@ app.post("/api/reset-password/:token", async (req, res) => {
   }
 });
 // get all admin
-app.get("/api/admins", authenticateAdmin, async (req, res) => {
+app.get("/api/admins", async (req, res) => {
   try {
-    // The admin is already attached to the request by authenticateAdmin middleware
-    const admin = await Admin.findById(req.admin.id);
-    if (!admin) {
-      return res.status(404).json({ message: "Admin not found" });
-    }
-    res.json({
-      username: admin.username,
-      email: admin.email,
-      id: admin._id
-    });
+    const admins = await Admin.find(); // Fetch all admins
+    console.log("Fetched Admins:", admins); // Debugging
+    res.json(admins);
   } catch (error) {
+    console.error("Error fetching admins:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/api/admins/me", authenticateAdmin, async (req, res) => {
   try {
     // The admin is already attached to the request by authenticateAdmin middleware
@@ -402,4 +400,4 @@ app.listen(PORT, () => {
 });
 
 
-export default app;  // ES Modules syntax
+  // ES Modules syntax
