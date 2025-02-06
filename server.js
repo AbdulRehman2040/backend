@@ -400,4 +400,4 @@ app.listen(PORT, () => {
 });
 
 
-  // ES Modules syntax
+export default app;  // ES Modules syntax
